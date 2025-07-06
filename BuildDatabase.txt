@@ -1,0 +1,59 @@
+-- Create the database
+CREATE DATABASE LMSDatabase;
+
+USE LMSDatabase;
+
+CREATE TABLE Users (
+    UserId VARCHAR(255) PRIMARY KEY,
+    UserType VARCHAR(50),
+    Username VARCHAR(255) NOT NULL,
+    FirstName VARCHAR(255),
+    LastName VARCHAR(255),
+    Password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Assignment (
+    AssignmentId INT AUTO_INCREMENT PRIMARY KEY,
+    StudentId VARCHAR(255),
+    FilePath VARCHAR(255),
+    GradingStatus BOOLEAN DEFAULT 0,
+    FeedbackStatus BOOLEAN DEFAULT 0,
+    Feedback VARCHAR(250),
+    Grade VARCHAR(10),
+    FOREIGN KEY (StudentId) REFERENCES Users(UserId)
+);
+
+DROP TABLE IF EXISTS Sessions;
+
+CREATE TABLE Sessions (
+    Token VARCHAR(64) PRIMARY KEY,
+    UserId VARCHAR(10) NOT NULL,
+    UserType VARCHAR(20) NOT NULL,
+    Expiry TIMESTAMP NOT NULL
+);
+
+CREATE TABLE Query (
+    QueryId INT AUTO_INCREMENT PRIMARY KEY,
+    StudentId VARCHAR(255),
+    Title VARCHAR(255),
+    Body VARCHAR(500),
+    Status BOOLEAN DEFAULT 0,
+    Reply VARCHAR(1000),
+    FOREIGN KEY (StudentId) REFERENCES Users(UserId)
+);
+
+CREATE TABLE CourseMaterials (
+    DocId VARCHAR(255) PRIMARY KEY,
+    Title VARCHAR(255),
+    FilePath VARCHAR(255),
+    UploadedBy VARCHAR(255),
+    FOREIGN KEY (UploadedBy) REFERENCES Users(UserId)
+);
+
+-- Insert users (without extra comma)
+INSERT INTO Users (UserId, UserType, Username, FirstName, LastName, Password)
+VALUES 
+    ('S001', 'student', 'vaibhav_vyas', 'Vaibhav', 'Vyas', SHA2('VaibhavVyas123', 256)),
+    ('S002', 'student', 'hemant_verma', 'Hemant', 'Verma', SHA2('HemantVerma123', 256)),
+    ('S003', 'student', 'prateek_singh', 'Prateek', 'Singh', SHA2('PrateekSingh123', 256)),
+    ('I001', 'instructor', 'rahul_nagpal', 'Rahul', 'Nagpal', SHA2('RahulNagpal123', 256));

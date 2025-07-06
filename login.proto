@@ -1,0 +1,243 @@
+syntax = "proto3";
+
+package lms;
+
+// Login request and response
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+    string message = 2;
+    string user_type = 3;
+}
+
+// Assignment upload
+message AssignmentUploadRequest {
+    string token = 1;
+    bytes assignment_data = 2;
+}
+
+message AssignmentUploadResponse {
+    string message = 1;
+}
+
+// Feedback and grade
+message FeedbackRequest {
+    string token = 1;
+}
+
+message FeedbackResponse {
+    string feedback = 1;
+    bool graded = 2;
+    string grade = 3;
+}
+
+// Assignment status check
+message AssignmentStatusRequest {
+    string token = 1;
+}
+
+message AssignmentStatusResponse {
+    bool uploaded = 1;
+}
+
+// Grade assignment request and response
+message GradeAssignmentRequest {
+    string token = 1;         // The instructor's session token
+    int32 assignment_id = 2;  // ID of the assignment being graded
+    string grade = 3;         // The grade being assigned
+    string feedback = 4;      // Feedback from the instructor
+    string student_id=5;	
+}
+
+message ViewUngradedAssignmentsRequest {
+    string token = 1; // Token to validate instructor
+}
+
+message Assignment {
+    int32 assignment_id = 1;
+    string student_id = 2;
+    string file_path = 3;
+    
+}
+
+message ViewUngradedAssignmentsResponse {
+    repeated Assignment assignments = 1; // List of ungraded assignments
+}
+
+message GradeAssignmentResponse {
+    string message = 1;
+}
+
+// Post a query
+message QueryRequest {
+    string token = 1;
+    string title = 2; 
+    string query = 3;
+}
+
+message QueryResponse {
+    string message = 1;
+}
+
+// Check query reply request and response
+message CheckQueryReplyRequest {
+    string token = 1;
+}
+
+message CheckQueryReplyResponse {
+    string reply = 1;
+}
+
+/// View queries for instructor
+message Query {
+    int32 query_id = 1;  
+    string title = 2;    
+    string body = 3;  
+    string student_id=4;   
+}
+
+message QueryViewRequest {
+    string token = 1;
+}
+
+message QueryViewResponse {
+    repeated Query queries = 1;
+}
+
+// Reply to query by instructor
+message ReplyToQueryRequest {
+    string token = 1;
+    int32 query_id = 2;
+    string reply = 3;
+    string student_id=4;
+}
+
+message ReplyToQueryResponse {
+    string message = 1;
+}
+
+// Upload course material
+message CourseMaterialUploadRequest {
+    string token = 1;
+    string title = 2;
+    bytes material_data = 3;
+}
+
+message CourseMaterialUploadResponse {
+    string message = 1;
+}
+
+// List course materials
+message CourseMaterialListRequest {
+    string token = 1;
+}
+
+message CourseMaterialListResponse {
+    repeated string titles = 1;
+}
+
+// Download course material
+message CourseMaterialDownloadRequest {
+    string token = 1;
+    string title = 2;
+}
+
+message CourseMaterialDownloadResponse {
+    bytes content = 1;
+    string message = 2;
+}
+
+// LLM response generation
+message QuestionRequest {
+    string token = 1;
+    string question = 2;
+}
+
+message AnswerRequest {
+    string token = 1;
+    string question = 2;
+}
+
+message AnswerResponse {
+    string token = 1;
+    string answer = 2;
+}
+
+// Raft protocol messages
+
+// Vote request for leader election
+message RequestVoteRequest {
+    int32 term = 1;
+    string candidateId = 2;
+}
+
+message RequestVoteReply {
+    int32 term = 1;
+    bool vote_granted = 2;
+}
+
+message LogEntry {
+    int32 term = 1;
+    string command = 2;  
+}
+
+message AppendEntriesRequest {
+    int32 term = 1;
+    string leaderId = 2;
+    string leaderAddress=3;
+    int32 prevLogIndex = 4;
+    int32 prevLogTerm = 5;
+    repeated LogEntry entries = 6;
+    int32 leaderCommit = 7;
+}
+
+
+message AppendEntriesReply {
+    int32 term = 1;
+    bool success = 2;
+}
+
+
+message ValidateTokenRequest {
+    string token = 1;
+}
+
+message ValidateTokenResponse {
+    bool valid = 1;
+}
+
+// Define the LMS gRPC services
+service LMS {
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc UploadAssignment (AssignmentUploadRequest) returns (AssignmentUploadResponse);
+    rpc CheckFeedback (FeedbackRequest) returns (FeedbackResponse);
+    rpc CheckAssignmentStatus (AssignmentStatusRequest) returns (AssignmentStatusResponse);
+    rpc GradeAssignment (GradeAssignmentRequest) returns (GradeAssignmentResponse);
+    rpc PostQuery (QueryRequest) returns (QueryResponse);
+    rpc CheckQueryReply (CheckQueryReplyRequest) returns (CheckQueryReplyResponse);
+    rpc ViewQueries (QueryViewRequest) returns (QueryViewResponse);
+    rpc ReplyToQuery (ReplyToQueryRequest) returns (ReplyToQueryResponse);
+    rpc UploadCourseMaterial (CourseMaterialUploadRequest) returns (CourseMaterialUploadResponse);
+    rpc ListCourseMaterials (CourseMaterialListRequest) returns (CourseMaterialListResponse);
+    rpc DownloadCourseMaterial (CourseMaterialDownloadRequest) returns (CourseMaterialDownloadResponse);
+    rpc ViewUngradedAssignments (ViewUngradedAssignmentsRequest) returns (ViewUngradedAssignmentsResponse);
+    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+    
+    // LLM Model Module
+    rpc GenerateAnswer (AnswerRequest) returns (AnswerResponse);
+    rpc AskQuestion (QuestionRequest) returns (AnswerResponse);
+
+   
+
+    
+}
+service Raft{
+    rpc RequestVote(RequestVoteRequest) returns (RequestVoteReply);
+    rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesReply);
+}
+
+
